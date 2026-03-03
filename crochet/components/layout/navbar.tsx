@@ -20,8 +20,8 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname()
   const mounted = useMounted()
-  const itemCount = useCartStore((state) => state.getItemCount)
-  const wishlistCount = useWishlistStore((state) => state.getCount)
+  const itemCount = useCartStore((state) => state.getItemCount())
+  const wishlistCount = useWishlistStore((state) => state.getCount())
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -68,9 +68,9 @@ export function Navbar() {
               )}
               strokeWidth={2.5}
             />
-            {mounted && wishlistCount() > 0 && (
+            {mounted && wishlistCount > 0 && (
               <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground border-2 border-background">
-                {wishlistCount()}
+                {wishlistCount}
               </Badge>
             )}
           </Link>
@@ -82,9 +82,9 @@ export function Navbar() {
             aria-label="Cart"
           >
             <ShoppingBag className="h-5 w-5" strokeWidth={2.5} />
-            {mounted && itemCount() > 0 && (
+            {mounted && itemCount > 0 && (
               <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground border-2 border-background">
-                {itemCount()}
+                {itemCount}
               </Badge>
             )}
           </Link>

@@ -19,7 +19,7 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product }: ProductInfoProps) {
   const mounted = useMounted()
-  const isWishlisted = useWishlistStore((s) => s.isWishlisted)
+  const wishlisted = useWishlistStore((s) => s.isWishlisted(product.id))
   const toggleWishlist = useWishlistToggle()
   const addToCart = useAddToCart()
 
@@ -27,8 +27,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
     product.variants.find((v) => v.inStock) ?? product.variants[0]
   )
   const [quantity, setQuantity] = useState(1)
-
-  const wishlisted = mounted && isWishlisted(product.id)
   const currentPrice = selectedVariant?.price ?? product.price
 
   const handleAddToCart = () => {
@@ -174,12 +172,12 @@ export function ProductInfo({ product }: ProductInfoProps) {
           size="lg"
           className="w-14"
           onClick={() => toggleWishlist(product.id, product.name)}
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={mounted && wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart
             className={cn(
               'h-5 w-5',
-              wishlisted ? 'fill-primary text-primary' : ''
+              mounted && wishlisted ? 'fill-primary text-primary' : ''
             )}
             strokeWidth={2.5}
           />

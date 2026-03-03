@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ProductCard } from '../product-card'
+import { useCartStore } from '@/lib/stores/cart-store'
+import { useWishlistStore } from '@/lib/stores/wishlist-store'
 import type { Product } from '@/types'
 
 // Mock framer-motion
@@ -42,7 +44,14 @@ const mockProduct: Product = {
   createdAt: '2026-01-01',
 }
 
-describe('ProductCard', () => {
+const outOfStockProduct: Product = {
+  ...mockProduct,
+  id: 'test-2',
+  slug: 'test-out-of-stock',
+  inStock: false,
+}
+
+describe('ProductCard — rendering', () => {
   it('renders product name', () => {
     render(<ProductCard product={mockProduct} />)
     expect(screen.getByText('Test Crochet Bear')).toBeInTheDocument()
@@ -87,5 +96,76 @@ describe('ProductCard', () => {
   it('renders add to cart button', () => {
     render(<ProductCard product={mockProduct} />)
     expect(screen.getByLabelText(/add.*cart/i)).toBeInTheDocument()
+  })
+
+  it('add to cart button is disabled when out of stock', () => {
+    render(<ProductCard product={outOfStockProduct} />)
+    const btn = screen.getByLabelText(/add.*cart/i)
+    expect(btn).toBeDisabled()
+  })
+})
+
+describe('ProductCard — cart interactions', () => {
+  beforeEach(() => {
+    useCartStore.setState({ items: [] })
+  })
+
+  it('adds product to cart when add to cart button is clicked', async () => {
+    const user = userEvent.setup()
+    render(<ProductCard product={mockProduct} />)
+    await user.click(screen.getByLabelText(/add.*cart/i))
+    const { items } = useCartStore.getState()
+    expect(items).toHaveLength(1)
+    expect(items[0].productId).toBe('test-1')
+    expect(items[0].quantity).toBe(1)
+  })
+
+  it('increments quantity when same product added twice', async () => {
+    const user = userEvent.setup()
+    render(<ProductCard product={mockProduct} />)
+    await user.click(screen.getByLabelText(/add.*cart/i))
+    await user.click(screen.getByLabelText(/add.*cart/i))
+    const { items } = useCartStore.getState()
+    expect(items).toHaveLength(1)
+    expect(items[0].quantity).toBe(2)
+  })
+
+  it('does not add out of stock product to cart', async () => {
+    const user = userEvent.setup()
+    render(<ProductCard product={outOfStockProduct} />)
+    const btn = screen.getByLabelText(/add.*cart/i)
+    expect(btn).toBeDisabled()
+    // Button is disabled — click should have no effect
+    await user.click(btn).catch(() => {}) // userEvent throws on disabled buttons
+    expect(useCartStore.getState().items).toHaveLength(0)
+  })
+
+  it('shows toast when item is added to cart', async () => {
+    const { toast } = await import('sonner')
+    const user = userEvent.setup()
+    render(<ProductCard product={mockProduct} />)
+    await user.click(screen.getByLabelText(/add.*cart/i))
+    expect(toast.success).toHaveBeenCalled()
+  })
+})
+
+describe('ProductCard — wishlist interactions', () => {
+  beforeEach(() => {
+    useWishlistStore.setState({ items: [] })
+  })
+
+  it('adds product to wishlist when heart button is clicked', async () => {
+    const user = userEvent.setup()
+    render(<ProductCard product={mockProduct} />)
+    await user.click(screen.getByLabelText(/wishlist/i))
+    expect(useWishlistStore.getState().isWishlisted('test-1')).toBe(true)
+  })
+
+  it('removes product from wishlist when heart clicked again', async () => {
+    useWishlistStore.setState({ items: ['test-1'] })
+    const user = userEvent.setup()
+    render(<ProductCard product={mockProduct} />)
+    await user.click(screen.getByLabelText(/wishlist/i))
+    expect(useWishlistStore.getState().isWishlisted('test-1')).toBe(false)
   })
 })

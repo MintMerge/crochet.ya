@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { getCategoriesWithCount } from '@/lib/data'
+import type { Category } from '@/types'
 
 const containerVariants = {
   hidden: {},
@@ -19,8 +19,11 @@ const itemVariants = {
   },
 }
 
-export function CategoryGrid() {
-  const categories = getCategoriesWithCount()
+interface CategoryGridProps {
+  categories: (Category & { productCount: number })[]
+}
+
+export function CategoryGrid({ categories }: CategoryGridProps) {
 
   return (
     <section className="py-16">

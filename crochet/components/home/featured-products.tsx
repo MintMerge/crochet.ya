@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { ProductGrid } from '@/components/product'
-import { getFeaturedProducts } from '@/lib/data'
 import { Button } from '@/components/ui/button'
+import type { Product } from '@/types'
 
-export function FeaturedProducts() {
-  const products = getFeaturedProducts()
+interface FeaturedProductsProps {
+  products: Product[]
+}
 
+export function FeaturedProducts({ products }: FeaturedProductsProps) {
   if (products.length === 0) return null
 
   return (

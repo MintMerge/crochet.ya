@@ -21,14 +21,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const mounted = useMounted()
-  const isWishlisted = useWishlistStore((s) => s.isWishlisted)
+  const wishlisted = useWishlistStore((s) => s.isWishlisted(product.id))
   const toggleWishlist = useWishlistToggle()
   const addToCart = useAddToCart()
 
   const primaryImage =
     product.images.find((i) => i.isPrimary) ?? product.images[0]
-
-  const wishlisted = mounted && isWishlisted(product.id)
 
   return (
     <motion.div
@@ -73,12 +71,12 @@ export function ProductCard({ product }: ProductCardProps) {
             toggleWishlist(product.id, product.name)
           }}
           className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-card/90 border-2 border-border backdrop-blur-sm transition-all hover:scale-110"
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={mounted && wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart
             className={cn(
               'h-4 w-4 transition-colors',
-              wishlisted ? 'fill-primary text-primary' : 'text-muted-foreground'
+              mounted && wishlisted ? 'fill-primary text-primary' : 'text-muted-foreground'
             )}
             strokeWidth={2.5}
           />

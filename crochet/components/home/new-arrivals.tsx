@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { ProductGrid } from '@/components/product'
-import { getNewArrivals } from '@/lib/data'
 import { Button } from '@/components/ui/button'
+import type { Product } from '@/types'
 
-export function NewArrivals() {
-  const products = getNewArrivals(4)
+interface NewArrivalsProps {
+  products: Product[]
+}
 
+export function NewArrivals({ products }: NewArrivalsProps) {
   if (products.length === 0) return null
 
   return (

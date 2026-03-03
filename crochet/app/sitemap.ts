@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { getAllProducts } from '@/lib/data'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://crochet-ya.vercel.app'
-  const products = getAllProducts()
+  const products = await getAllProducts()
 
   return [
     {

@@ -1,76 +1,112 @@
 # Product Management Guide
 
-## Adding a New Product
+Products are managed through the admin panel. **Do not edit `data/products.ts`** to add or change products — that file is legacy and only used for the one-time database seed.
 
-1. Open `data/products.ts`
-2. Add a new product object to the `products` array:
+## Accessing the Admin Panel
 
-```typescript
-{
-  id: 'unique-id',           // e.g., 'ami-004'
-  name: 'Product Name',
-  slug: 'product-name',      // URL-friendly, lowercase, hyphenated
-  description: 'Full description...',
-  shortDescription: 'Brief one-liner for cards',
-  price: 499,                // Price in INR (whole number)
-  compareAtPrice: 699,       // Optional: original price for sale display
-  currency: 'INR',
-  category: 'amigurumi',     // Must match a CategorySlug
-  tags: ['new', 'gift'],     // For search and badges
-  images: [
-    {
-      src: 'https://images.unsplash.com/...',  // Image URL
-      alt: 'Description of image',
-      isPrimary: true,        // First image shown on card
-    },
-  ],
-  variants: [                 // Optional: leave empty [] if no variants
-    {
-      id: 'variant-id',
-      name: 'Color Name',
-      color: 'Pink',
-      colorHex: '#F4A4B4',   // For color swatch display
-      inStock: true,
-    },
-  ],
-  featured: false,            // Show on homepage "Featured" section
-  isNew: true,                // Show "New" badge
-  inStock: true,              // Set false to disable "Add to Cart"
-  createdAt: '2026-03-01',    // ISO date string
-}
+Navigate to `/admin` (or `/admin/login`) and sign in with your Supabase credentials. See [Admin Setup Guide](./admin-setup.md) for first-time setup.
+
+---
+
+## Creating a Product
+
+1. Go to **Admin → Products** (`/admin/products`)
+2. Click **"New Product"**
+3. Fill in the product form:
+   - **Name** — display name (e.g. "Bunny Amigurumi")
+   - **Slug** — URL-friendly ID, auto-generated from name (e.g. `bunny-amigurumi`)
+   - **Short Description** — one-liner shown on product cards
+   - **Description** — full description shown on product detail page
+   - **Price** — in INR, whole number (e.g. `499`)
+   - **Compare At Price** — optional original price for sale display
+   - **Category** — select from dropdown (amigurumi, accessories, home-decor, clothing, keychains, custom)
+   - **Tags** — comma-separated (e.g. `new, gift, bunny`)
+   - **Featured** — check to show on homepage "Featured" section
+   - **New** — check to show "New" badge on product card
+   - **In Stock** — uncheck to disable "Add to Cart"
+4. Upload product images (see below)
+5. Add variants if the product comes in multiple colors/sizes (see below)
+6. Click **Save**
+
+---
+
+## Uploading Images
+
+On the product form, use the image uploader to upload photos directly. Images are stored in Supabase Storage (`product-images` bucket) and served via the Supabase CDN.
+
+- Upload multiple images per product
+- Mark one image as **Primary** — this is the image shown on product cards
+- Images are stored with public URLs, no authentication needed to view
+
+---
+
+## Managing Variants
+
+Variants represent product options (e.g. different colors of the same item).
+
+On the product form, in the **Variants** section:
+- Click **"Add Variant"** to add a color/size option
+- Each variant has:
+  - **Name** — e.g. "Pink", "Blue", "Small"
+  - **Color** — display name for the color swatch
+  - **Color Hex** — hex code for the color swatch (e.g. `#F4A4B4`)
+  - **In Stock** — toggle per-variant stock status
+- Leave variants empty if the product has no options
+
+---
+
+## Editing a Product
+
+1. Go to **Admin → Products**
+2. Find the product (use search or category filter)
+3. Click on the product row or the edit icon
+4. Make your changes and click **Save**
+
+Changes are live immediately — no rebuild or redeploy needed.
+
+---
+
+## Deleting a Product
+
+1. Go to **Admin → Products**
+2. Find the product
+3. Click the delete icon (trash) on the product row
+4. Confirm deletion
+
+Deleted products are removed from Supabase. The product page and all catalog listings update immediately.
+
+---
+
+## Managing Categories
+
+Category display information (name, emoji, image, description) is managed at **Admin → Categories** (`/admin/categories`).
+
+The 6 category slugs are fixed in the database schema:
+- `amigurumi` — Amigurumi
+- `accessories` — Accessories
+- `home-decor` — Home Decor
+- `clothing` — Tops & Wearables
+- `keychains` — Keychains
+- `custom` — Custom Orders
+
+You can edit the display info (emoji, description, image URL) for each category. You cannot add or remove category slugs without a database schema change.
+
+---
+
+## Initial Data Migration (One-Time)
+
+When setting up a new environment, run the seed script to populate Supabase from the static `data/products.ts` file:
+
+```bash
+npm run seed
 ```
 
-## Adding Images
+This is safe to run multiple times — it uses upsert and won't duplicate products. After the initial seed, all product management happens through the admin panel.
 
-**Using Unsplash (recommended for placeholders):**
-- Use URL format: `https://images.unsplash.com/photo-ID?w=600&h=600&fit=crop`
+---
 
-**Using local images:**
-1. Place images in `public/images/products/your-product-slug/`
-2. Reference as `/images/products/your-product-slug/main.jpg`
-3. Add the domain to `next.config.js` if using external URLs
+## Notes
 
-## Available Categories
-
-| Slug | Name |
-|------|------|
-| `amigurumi` | Amigurumi |
-| `accessories` | Accessories |
-| `home-decor` | Home Decor |
-| `clothing` | Tops & Wearables |
-| `keychains` | Keychains |
-| `custom` | Custom Orders |
-
-## Adding a New Category
-
-1. Add the slug to `CategorySlug` type in `types/product.ts`
-2. Add category data to `data/categories.ts`
-3. Add products with the new category slug
-
-## Editing Products
-
-Simply modify the product object in `data/products.ts`. Changes take effect on next build/deploy.
-
-## Removing Products
-
-Delete the product object from the array. If it was the only product in a category, the category section won't appear.
+- `data/products.ts` is the legacy static data file used only for seeding. It is not the live data source.
+- Changes made in the admin panel are stored in Supabase and take effect immediately without any code changes or deployments.
+- Product images must be uploaded through the admin panel — local file paths are not supported in production.
