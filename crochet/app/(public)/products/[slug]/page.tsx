@@ -4,21 +4,17 @@ import { notFound } from 'next/navigation'
 import { ChevronRight } from 'lucide-react'
 import { PageContainer } from '@/components/layout'
 import { ProductGallery, ProductInfo, ProductGrid } from '@/components/product'
-import { getAllProducts, getProductBySlug, getRelatedProducts, getCategoryBySlug } from '@/lib/data'
+import { getProductBySlug, getRelatedProducts, getCategoryBySlug } from '@/lib/data'
+
+export const dynamic = 'force-dynamic'
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  return getAllProducts().map((product) => ({
-    slug: product.slug,
-  }))
-}
-
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
-  const product = getProductBySlug(slug)
+  const product = await getProductBySlug(slug)
   if (!product) return { title: 'Product Not Found' }
 
   return {
@@ -29,14 +25,16 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const product = getProductBySlug(slug)
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     notFound()
   }
 
-  const relatedProducts = getRelatedProducts(product, 4)
-  const category = getCategoryBySlug(product.category)
+  const [relatedProducts, category] = await Promise.all([
+    getRelatedProducts(product, 4),
+    getCategoryBySlug(product.category),
+  ])
 
   return (
     <PageContainer className="py-8">

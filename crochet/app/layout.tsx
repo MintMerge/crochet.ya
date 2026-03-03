@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 import { Outfit, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/lib/query-provider'
-import { Navbar } from '@/components/layout/navbar'
-import { Footer } from '@/components/layout/footer'
 import { Toaster } from '@/components/ui/sonner'
 
 const outfit = Outfit({
@@ -38,9 +36,7 @@ export default function RootLayout({
         className={`${outfit.variable} ${plusJakarta.variable} font-body antialiased min-h-screen flex flex-col`}
       >
         <QueryProvider>
-          <Navbar />
-          <div className="flex-1">{children}</div>
-          <Footer />
+          {children}
           <Toaster position="bottom-right" richColors />
         </QueryProvider>
       </body>

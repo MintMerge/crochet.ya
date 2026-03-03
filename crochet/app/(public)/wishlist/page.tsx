@@ -1,20 +1,25 @@
 'use client'
 
-import type { Metadata } from 'next'
 import { PageContainer } from '@/components/layout'
 import { ProductGrid } from '@/components/product'
 import { EmptyWishlist } from '@/components/wishlist/empty-wishlist'
 import { useWishlistStore } from '@/lib/stores'
 import { useMounted } from '@/hooks/use-mounted'
-import { getAllProducts } from '@/lib/data'
+import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Heart } from 'lucide-react'
+import type { Product } from '@/types'
 
 export default function WishlistPage() {
   const mounted = useMounted()
   const wishlistItems = useWishlistStore((s) => s.items)
 
-  if (!mounted) {
+  const { data, isLoading } = useQuery<{ products: Product[] }>({
+    queryKey: ['all-products'],
+    queryFn: () => fetch('/api/products').then((r) => r.json()),
+  })
+
+  if (!mounted || isLoading) {
     return (
       <PageContainer className="py-12">
         <h1 className="font-heading text-4xl font-bold mb-8 flex items-center gap-3">
@@ -37,7 +42,7 @@ export default function WishlistPage() {
     )
   }
 
-  const allProducts = getAllProducts()
+  const allProducts = data?.products ?? []
   const wishlistedProducts = allProducts.filter((p) =>
     wishlistItems.includes(p.id)
   )

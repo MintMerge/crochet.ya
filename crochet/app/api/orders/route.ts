@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { orderFormSchema } from '@/lib/validations/order'
 import { sendTelegramMessage } from '@/lib/external/telegram'
 import { formatOrderForTelegram, generateOrderId } from '@/lib/format'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const orderRequestSchema = z.object({
   items: z
@@ -28,6 +29,29 @@ export async function POST(request: NextRequest) {
     const validated = orderRequestSchema.parse(body)
 
     const orderId = generateOrderId()
+
+    // Persist order to Supabase (best-effort — don't block on failure)
+    try {
+      const supabase = createAdminClient()
+      const { error: dbError } = await supabase.from('orders').insert({
+        id: orderId,
+        customer_name: validated.customer.customerName,
+        phone: validated.customer.phone,
+        email: validated.customer.email ?? null,
+        address: validated.customer.address,
+        city: validated.customer.city,
+        pincode: validated.customer.pincode,
+        notes: validated.customer.notes ?? null,
+        items: validated.items,
+        total_amount: validated.totalAmount,
+        status: 'pending',
+        order_date: new Date().toISOString(),
+      })
+      if (dbError) console.error('Order DB insert failed:', dbError)
+    } catch (err) {
+      console.error('Order DB error:', err)
+    }
+
     const message = formatOrderForTelegram(
       {
         items: validated.items,

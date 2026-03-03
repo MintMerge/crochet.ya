@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { PageContainer } from '@/components/layout'
 import { ProductGrid } from '@/components/product'
-import { getProductsByCategory, getCategoriesWithCount } from '@/lib/data'
+import { getCategoriesWithCount, getProductsByCategory } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -11,8 +13,18 @@ export const metadata: Metadata = {
     'Browse our full collection of handmade crochet products - amigurumi, accessories, home decor, clothing, keychains and custom orders.',
 }
 
-export default function ProductsPage() {
-  const categoriesWithCount = getCategoriesWithCount()
+export default async function ProductsPage() {
+  const categoriesWithCount = await getCategoriesWithCount()
+
+  // Fetch products for each category that has items
+  const categoriesWithProducts = await Promise.all(
+    categoriesWithCount
+      .filter((cat) => cat.productCount > 0)
+      .map(async (cat) => ({
+        ...cat,
+        products: await getProductsByCategory(cat.slug),
+      }))
+  )
 
   return (
     <PageContainer className="py-12">
@@ -51,23 +63,18 @@ export default function ProductsPage() {
 
       {/* Category Sections */}
       <div className="space-y-16" id="all">
-        {categoriesWithCount
-          .filter((cat) => cat.productCount > 0)
-          .map((cat) => {
-            const categoryProducts = getProductsByCategory(cat.slug)
-            return (
-              <section key={cat.slug} id={cat.slug}>
-                <div className="mb-6">
-                  <h2 className="font-heading text-2xl sm:text-3xl font-bold flex items-center gap-2">
-                    <span>{cat.emoji}</span>
-                    {cat.name}
-                  </h2>
-                  <p className="text-muted-foreground mt-1">{cat.description}</p>
-                </div>
-                <ProductGrid products={categoryProducts} columns={4} />
-              </section>
-            )
-          })}
+        {categoriesWithProducts.map((cat) => (
+          <section key={cat.slug} id={cat.slug}>
+            <div className="mb-6">
+              <h2 className="font-heading text-2xl sm:text-3xl font-bold flex items-center gap-2">
+                <span>{cat.emoji}</span>
+                {cat.name}
+              </h2>
+              <p className="text-muted-foreground mt-1">{cat.description}</p>
+            </div>
+            <ProductGrid products={cat.products} columns={4} />
+          </section>
+        ))}
       </div>
     </PageContainer>
   )
