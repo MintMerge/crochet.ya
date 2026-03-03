@@ -10,6 +10,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "migrate": "npx supabase db execute --project-ref pshfietirgwwfstrilek --file scripts/schema.sql",
     "seed": "npx ts-node --project tsconfig.json scripts/seed-products.ts"
   },
   "dependencies": {

@@ -28,7 +28,7 @@ export async function getAllProducts(): Promise<Product[]> {
     .from('products')
     .select('*')
     .order('created_at', { ascending: false })
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []).map(mapProduct)
 }
 
@@ -50,7 +50,7 @@ export async function getProductsByCategory(category: CategorySlug): Promise<Pro
     .select('*')
     .eq('category', category)
     .order('created_at', { ascending: false })
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []).map(mapProduct)
 }
 
@@ -61,7 +61,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     .select('*')
     .eq('featured', true)
     .order('created_at', { ascending: false })
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []).map(mapProduct)
 }
 
@@ -73,7 +73,7 @@ export async function getNewArrivals(limit = 6): Promise<Product[]> {
     .eq('is_new', true)
     .order('created_at', { ascending: false })
     .limit(limit)
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []).map(mapProduct)
 }
 
@@ -85,7 +85,7 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
     .eq('category', product.category)
     .neq('id', product.id)
     .limit(limit)
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []).map(mapProduct)
 }
 
@@ -95,7 +95,7 @@ export async function getAllCategories(): Promise<Category[]> {
     .from('categories')
     .select('*')
     .order('sort_order', { ascending: true })
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []) as unknown as Category[]
 }
 
@@ -125,6 +125,6 @@ export async function searchProducts(query: string): Promise<Product[]> {
     .from('products')
     .select('*')
     .or(`name.ilike.%${lower}%,description.ilike.%${lower}%`)
-  if (error) throw error
+  if (error) throw new Error(error.message)
   return (data ?? []).map(mapProduct)
 }
