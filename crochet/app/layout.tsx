@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/lib/query-provider'
@@ -15,6 +15,12 @@ const plusJakarta = Plus_Jakarta_Sans({
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-plus-jakarta',
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#FF8C69',
+}
 
 export const metadata: Metadata = {
   title: {

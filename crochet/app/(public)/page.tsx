@@ -1,8 +1,20 @@
+import type { Metadata } from 'next'
 import { PageContainer } from '@/components/layout'
 import { HeroSection, CategoryGrid, FeaturedProducts, NewArrivals } from '@/components/home'
 import { getFeaturedProducts, getNewArrivals, getCategoriesWithCount, getAllProducts } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'crochet.ya | Handmade with Love',
+  description:
+    'Shop handmade crochet amigurumi, accessories, home decor and custom pieces — each crafted with care.',
+  openGraph: {
+    title: 'crochet.ya | Handmade with Love',
+    description: 'Shop handmade crochet amigurumi, accessories, home decor and custom pieces — each crafted with care.',
+    type: 'website',
+  },
+}
 
 export default async function HomePage() {
   const results = await Promise.allSettled([
