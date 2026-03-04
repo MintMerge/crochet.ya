@@ -2,11 +2,11 @@
 
 import { PageContainer } from '@/components/layout'
 import { ProductGrid } from '@/components/product'
+import { ProductCardSkeleton } from '@/components/product/product-card-skeleton'
 import { EmptyWishlist } from '@/components/wishlist/empty-wishlist'
 import { useWishlistStore } from '@/lib/stores'
 import { useMounted } from '@/hooks/use-mounted'
 import { useQuery } from '@tanstack/react-query'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Heart } from 'lucide-react'
 import type { Product } from '@/types'
 
@@ -26,16 +26,9 @@ export default function WishlistPage() {
           <Heart className="h-8 w-8 text-primary" strokeWidth={2.5} />
           Your Wishlist
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border-2 border-border overflow-hidden">
-              <Skeleton className="aspect-square w-full" />
-              <div className="p-4 space-y-3">
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-6 w-1/3" />
-              </div>
-            </div>
+            <ProductCardSkeleton key={i} />
           ))}
         </div>
       </PageContainer>

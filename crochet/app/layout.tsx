@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/lib/query-provider'
@@ -16,6 +16,12 @@ const plusJakarta = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
 })
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#FF8C69',
+}
+
 export const metadata: Metadata = {
   title: {
     default: 'Crochet Ya | Handmade Crochet Products',
@@ -23,6 +29,11 @@ export const metadata: Metadata = {
   },
   description:
     'Discover beautiful handmade crochet products - amigurumi, accessories, home decor and more. Each piece crafted with love.',
+  icons: {
+    icon: '/icon',
+    shortcut: '/icon',
+    apple: '/icon',
+  },
 }
 
 export default function RootLayout({

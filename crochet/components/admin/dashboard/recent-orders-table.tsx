@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ShoppingBag } from 'lucide-react'
 import { formatPrice } from '@/lib/format'
 import { StatusBadge } from '@/components/admin/shared/status-badge'
 import type { OrderStatus } from '@/types'
@@ -18,7 +19,15 @@ interface RecentOrdersTableProps {
 export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
   if (orders.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm text-center py-8">No orders yet</p>
+      <div className="flex flex-col items-center justify-center py-12 gap-2 text-center px-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <ShoppingBag className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+        </div>
+        <p className="text-sm font-medium">No orders yet</p>
+        <p className="text-xs text-muted-foreground max-w-xs">
+          They&apos;ll show up here as soon as customers start ordering
+        </p>
+      </div>
     )
   }
 

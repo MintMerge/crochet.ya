@@ -54,7 +54,7 @@ export function CartItem({ item }: CartItemProps) {
               onClick={() =>
                 updateQuantity(item.productId, item.variantId, item.quantity - 1)
               }
-              className="h-8 w-8 flex items-center justify-center hover:bg-muted transition-colors"
+              className="h-9 w-9 flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
               aria-label="Decrease quantity"
             >
               <Minus className="h-3 w-3" strokeWidth={2.5} />
@@ -66,7 +66,7 @@ export function CartItem({ item }: CartItemProps) {
               onClick={() =>
                 updateQuantity(item.productId, item.variantId, item.quantity + 1)
               }
-              className="h-8 w-8 flex items-center justify-center hover:bg-muted transition-colors"
+              className="h-9 w-9 flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
               aria-label="Increase quantity"
             >
               <Plus className="h-3 w-3" strokeWidth={2.5} />

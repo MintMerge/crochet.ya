@@ -70,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
             e.preventDefault()
             toggleWishlist(product.id, product.name)
           }}
-          className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-card/90 border-2 border-border backdrop-blur-sm transition-all hover:scale-110"
+          className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-card/90 border-2 border-border backdrop-blur-sm transition-all hover:scale-110 cursor-pointer"
           aria-label={mounted && wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart
@@ -108,7 +108,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <Button
               variant="playful"
               size="sm"
-              className="h-9 w-9 p-0"
+              className="h-10 w-10 p-0"
               onClick={(e) => {
                 e.preventDefault()
                 addToCart(product)

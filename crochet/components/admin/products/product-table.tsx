@@ -4,11 +4,12 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import { Pencil, Trash2, Plus, Package } from 'lucide-react'
 import { SearchInput } from '@/components/admin/shared/search-input'
 import { DeleteProductDialog } from './delete-product-dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { formatPrice } from '@/lib/format'
 import type { Product } from '@/types'
 
@@ -78,19 +79,46 @@ export function ProductTable() {
       {/* Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
-            Loading products...
+          <div className="p-4 space-y-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 border-b border-border/50 py-3 px-4">
+                <Skeleton className="h-10 w-10 rounded-md shrink-0 bg-primary/10" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-40 bg-primary/10" />
+                  <Skeleton className="h-3 w-24 bg-primary/8" />
+                </div>
+                <Skeleton className="h-4 w-24 bg-primary/8 hidden sm:block" />
+                <Skeleton className="h-4 w-16 bg-primary/10 hidden md:block" />
+                <Skeleton className="h-6 w-16 rounded-full bg-primary/10 hidden lg:block" />
+                <Skeleton className="h-8 w-16 rounded-md bg-primary/8 ml-auto" />
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-16 text-destructive text-sm">
             Failed to load products
           </div>
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <p className="text-muted-foreground text-sm">No products found</p>
-            <Button asChild size="sm" variant="outline">
-              <Link href="/admin/products/new">Add your first product</Link>
-            </Button>
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center px-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <Package className="h-7 w-7 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+            <p className="font-medium text-sm">
+              {search || category !== 'all' ? 'No products match your search' : 'No products yet'}
+            </p>
+            <p className="text-muted-foreground text-xs max-w-xs">
+              {search || category !== 'all'
+                ? 'Try a different search term or category'
+                : 'Add your first product to get started'}
+            </p>
+            {!search && category === 'all' && (
+              <Button asChild size="sm" className="mt-1">
+                <Link href="/admin/products/new">
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  Add your first product
+                </Link>
+              </Button>
+            )}
           </div>
         ) : (
           <table className="w-full text-sm">

@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
-import { Eye } from 'lucide-react'
+import { Eye, PackageOpen } from 'lucide-react'
 import { SearchInput } from '@/components/admin/shared/search-input'
 import { StatusBadge } from '@/components/admin/shared/status-badge'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { formatPrice } from '@/lib/format'
 import { ORDER_STATUSES, type AdminOrder, type OrderStatus } from '@/types'
 
@@ -61,16 +62,36 @@ export function OrdersTable() {
       {/* Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
-            Loading orders...
+          <div className="p-4 space-y-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 items-center border-b border-border/50 py-3 px-4">
+                <Skeleton className="h-4 w-24 bg-primary/10" />
+                <Skeleton className="h-4 w-28 bg-primary/8" />
+                <Skeleton className="h-4 w-24 bg-primary/8" />
+                <Skeleton className="h-4 w-16 bg-primary/10" />
+                <Skeleton className="h-6 w-20 rounded-full bg-primary/10" />
+                <Skeleton className="h-4 w-20 bg-primary/8" />
+                <Skeleton className="h-8 w-8 rounded-md bg-primary/8" />
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-16 text-destructive text-sm">
             Failed to load orders
           </div>
         ) : orders.length === 0 ? (
-          <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
-            No orders found
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center px-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <PackageOpen className="h-7 w-7 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+            <p className="font-medium text-sm">
+              {search || status !== 'all' ? 'No orders match your search' : 'No orders yet'}
+            </p>
+            <p className="text-muted-foreground text-xs max-w-xs">
+              {search || status !== 'all'
+                ? 'Try a different search term or filter'
+                : 'Orders will appear here once customers start placing them'}
+            </p>
           </div>
         ) : (
           <>

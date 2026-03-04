@@ -42,9 +42,20 @@ export default async function ProductsPage() {
         {allProducts.length > 0 ? (
           <ProductGrid products={allProducts} columns={4} />
         ) : (
-          <p className="text-center text-muted-foreground py-16">
-            No products yet. Check back soon!
-          </p>
+          <div className="flex flex-col items-center justify-center py-20 sm:py-28 text-center px-4">
+            <div className="relative mb-8">
+              <div className="flex h-28 w-28 items-center justify-center rounded-full bg-primary/10 border-2 border-primary/20">
+                <span className="text-5xl" role="img" aria-label="yarn">🧶</span>
+              </div>
+              <span className="absolute -top-1 -right-1 text-2xl" role="img" aria-label="sparkle">✨</span>
+            </div>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-3">
+              Nothing here yet
+            </h2>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xs sm:max-w-sm">
+              New handmade pieces are being crafted with love. Check back very soon!
+            </p>
+          </div>
         )}
       </PageContainer>
     )

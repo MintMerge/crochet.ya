@@ -60,7 +60,7 @@ app/
 components/
   ui/           # shadcn/ui primitives
   layout/       # Navbar, Footer, MobileNav, PageContainer
-  product/      # ProductCard, ProductGrid, ProductGallery, ProductInfo
+  product/      # ProductCard, ProductGrid, ProductGallery, ProductInfo, ProductCardSkeleton
   cart/         # CartItem, CartSummary, OrderForm, EmptyCart
   wishlist/     # EmptyWishlist
   home/         # HeroSection, CategoryGrid, FeaturedProducts, NewArrivals
@@ -131,7 +131,14 @@ Customer fills order form in /cart
 | `lib/supabase/auth-check.ts` | `requireAdminAuth()` — must be called in every admin API handler |
 | `middleware.ts` | Redirects unauthenticated requests away from `/admin/*` |
 | `types/admin.ts` | Admin-specific types including `ORDER_STATUSES` constant |
+| `app/layout.tsx` | Root layout — exports both `metadata` AND `viewport` (separate exports required) |
+| `app/icon.tsx` | Favicon via `ImageResponse` from `next/og` — coral `#FF8C69` bg with white "cy" text |
+| `app/manifest.ts` | PWA manifest — icons point to `/icon` (file-based convention) |
+| `app/loading.tsx` | Root loading skeleton — minimal fallback (rarely triggered) |
+| `app/error.tsx` | Root error boundary |
+| `app/not-found.tsx` | Branded 404 page |
 | `app/(public)/layout.tsx` | Public layout with Navbar + Footer |
+| `app/(public)/products/loading.tsx` | Products page loading skeleton (centered header → pill row → 8-card grid) |
 | `app/admin/layout.tsx` | Admin layout with sidebar + topbar |
 | `app/api/admin/products/route.ts` | GET product list, POST create product |
 | `app/api/admin/upload/route.ts` | POST image → Supabase Storage `product-images` bucket |
@@ -279,6 +286,27 @@ if (error) return error; // returns NextResponse with 401
 - Public storefront components → `components/product/`, `components/cart/`, etc.
 - shadcn/ui primitives → `components/ui/` (do not manually edit these)
 
+### Loading UI (Skeleton Screens)
+Each data-fetching route segment has a co-located `loading.tsx` that renders a skeleton matching the real page layout. Uses Next.js built-in Suspense integration — no manual `<Suspense>` wrappers needed.
+
+Key files:
+- `app/loading.tsx` — minimal root fallback (2 skeletons, rarely triggered)
+- `app/(public)/products/loading.tsx` — full products page skeleton: centered header → category pill row → 8-card grid
+
+Skeleton component: `components/product/product-card-skeleton.tsx`
+- Uses `bg-primary/10` / `bg-primary/8` for warm peach shimmer (NOT grey `bg-muted`)
+- Must have `w-full` on outer div so it fills grid cells
+- Grid in `loading.tsx` MUST match `ProductGrid` exactly: `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6`
+
+**Rule:** `loading.tsx` must live at the SAME route level as the page it covers, so it renders inside the correct layout wrapper (with Navbar/Footer). A `loading.tsx` at `app/` renders WITHOUT the public layout — always prefer `app/(public)/products/loading.tsx` over `app/loading.tsx` for public pages.
+
+### Metadata + Viewport
+`app/layout.tsx` exports both `metadata` AND `viewport` as separate named exports:
+```ts
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#FF8C69' }
+```
+Next.js 16 does not allow `viewport` inside the `metadata` object — they must be separate exports.
+
 ---
 
 ## Current State (as of 2026-03)
@@ -289,6 +317,11 @@ if (error) return error; // returns NextResponse with 401
 - Admin panel: dashboard, products CRUD with image upload, orders management, categories editor, site settings
 - Supabase database with RLS
 - Admin auth via Supabase Auth + middleware
+- Favicon + PWA manifest (`app/icon.tsx`, `app/manifest.ts`)
+- Loading skeletons with warm peach shimmer for all public routes
+- Branded empty states (cart, wishlist, products page, admin tables)
+- Root error boundary + 404 page (`app/error.tsx`, `app/not-found.tsx`)
+- Viewport metadata export + homepage OG metadata
 
 ### Not Yet Implemented
 - Customer-facing accounts / order tracking
