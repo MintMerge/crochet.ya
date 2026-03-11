@@ -332,6 +332,24 @@ Next.js 16 does not allow `viewport` inside the `metadata` object — they must 
 
 ---
 
+## Testing
+
+### API Tests
+- Tests live in `app/api/__tests__/` — one file per route group
+- Route handlers are imported and called directly (no HTTP server needed)
+- Key mocks per file: `@/lib/supabase/auth-check`, `@/lib/supabase/admin`, `next/cache`, `next/server` (`after` as sync no-op via `vi.mock`)
+- `vitest.config.ts` coverage includes `app/api/**`
+- Run all tests: `npm run test:run` (196 tests across 18 files)
+
+### Image Guard Pattern
+When rendering `<Image src={...}>` from data that may be empty/null, always guard:
+```tsx
+{someValue ? <Image src={someValue} ... /> : <div className="absolute inset-0 bg-primary/20" />}
+```
+This prevents the Next.js Image Optimizer 400 error and browser empty-src warnings.
+
+---
+
 ## DO NOT
 
 - **Do not edit `data/products.ts` to manage products** — this file is legacy/seed-only. All product management happens through the admin panel at `/admin/products`.
