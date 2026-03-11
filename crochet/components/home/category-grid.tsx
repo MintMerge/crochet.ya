@@ -49,13 +49,17 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
               href={`/products#${cat.slug}`}
               className="group relative block overflow-hidden rounded-2xl border-2 border-border aspect-[4/3] shadow-hard-sm transition-all hover:shadow-hard hover:-translate-y-1"
             >
-              <Image
-                src={cat.image}
-                alt={cat.name}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, 33vw"
-              />
+              {cat.image ? (
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-primary/20" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <span className="text-2xl mb-1 block">{cat.emoji}</span>

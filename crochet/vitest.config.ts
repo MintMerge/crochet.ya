@@ -11,7 +11,7 @@ export default defineConfig({
     include: ['**/*.test.{ts,tsx}'],
     coverage: {
       reporter: ['text', 'lcov'],
-      include: ['components/**', 'lib/**', 'hooks/**'],
+      include: ['components/**', 'lib/**', 'hooks/**', 'app/api/**'],
     },
   },
   resolve: {

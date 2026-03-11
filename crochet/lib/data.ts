@@ -1,5 +1,15 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { cacheLife, cacheTag } from 'next/cache'
 import type { Product, Category, CategorySlug } from '@/types'
+
+// Cookie-free Supabase client — safe to use inside `use cache` functions.
+// Public reads (products, categories) don't need session cookies.
+function createPublicClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 function mapProduct(row: Record<string, unknown>): Product {
   return {
@@ -23,7 +33,11 @@ function mapProduct(row: Record<string, unknown>): Product {
 }
 
 export async function getAllProducts(): Promise<Product[]> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -33,7 +47,11 @@ export async function getAllProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products', `product-${slug}`)
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -44,7 +62,11 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
 }
 
 export async function getProductsByCategory(category: CategorySlug): Promise<Product[]> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -55,7 +77,11 @@ export async function getProductsByCategory(category: CategorySlug): Promise<Pro
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -66,7 +92,11 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 }
 
 export async function getNewArrivals(limit = 6): Promise<Product[]> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -78,7 +108,11 @@ export async function getNewArrivals(limit = 6): Promise<Product[]> {
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -90,7 +124,11 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
 }
 
 export async function getAllCategories(): Promise<Category[]> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('categories')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -100,7 +138,11 @@ export async function getAllCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryBySlug(slug: CategorySlug): Promise<Category | undefined> {
-  const supabase = await createClient()
+  'use cache'
+  cacheLife('hours')
+  cacheTag('categories')
+
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -111,6 +153,10 @@ export async function getCategoryBySlug(slug: CategorySlug): Promise<Category | 
 }
 
 export async function getCategoriesWithCount(): Promise<(Category & { productCount: number })[]> {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products', 'categories')
+
   const [categories, products] = await Promise.all([getAllCategories(), getAllProducts()])
   return categories.map((cat) => ({
     ...cat,
@@ -118,8 +164,28 @@ export async function getCategoriesWithCount(): Promise<(Category & { productCou
   }))
 }
 
+// Fetches all products once and groups them by category — avoids N+1 query pattern on /products page
+export async function getProductsGroupedByCategory(): Promise<
+  (Category & { productCount: number; products: Product[] })[]
+> {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('products', 'categories')
+
+  const [categories, products] = await Promise.all([getAllCategories(), getAllProducts()])
+  return categories
+    .map((cat) => {
+      const catProducts = products
+        .filter((p) => p.category === cat.slug)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      return { ...cat, productCount: catProducts.length, products: catProducts }
+    })
+    .filter((cat) => cat.productCount > 0)
+}
+
 export async function searchProducts(query: string): Promise<Product[]> {
-  const supabase = await createClient()
+  // searchProducts is not cached — it takes dynamic user input
+  const supabase = createPublicClient()
   const lower = query.toLowerCase()
   const { data, error } = await supabase
     .from('products')

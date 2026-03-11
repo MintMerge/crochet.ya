@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { z } from 'zod'
+import { updateTag } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 import { productFormSchema } from '@/lib/validations/product'
@@ -48,7 +49,9 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  return NextResponse.json({ products: (data ?? []).map(mapRow) })
+  return NextResponse.json({ products: (data ?? []).map(mapRow) }, {
+    headers: { 'Cache-Control': 'no-store' },
+  })
 }
 
 // POST /api/admin/products — create a new product
@@ -99,5 +102,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ product: mapRow(data) }, { status: 201 })
+  after(() => updateTag('products'))
+  return NextResponse.json({ product: mapRow(data) }, { status: 201, headers: { 'Cache-Control': 'no-store' } })
 }

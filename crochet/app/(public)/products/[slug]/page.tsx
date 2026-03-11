@@ -6,8 +6,6 @@ import { PageContainer } from '@/components/layout'
 import { ProductGallery, ProductInfo, ProductGrid } from '@/components/product'
 import { getProductBySlug, getRelatedProducts, getCategoryBySlug } from '@/lib/data'
 
-export const dynamic = 'force-dynamic'
-
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
@@ -17,9 +15,19 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const product = await getProductBySlug(slug)
   if (!product) return { title: 'Product Not Found' }
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://crochet-ya.vercel.app'
+  const primaryImage = product.images.find((img) => img.isPrimary) ?? product.images[0]
+
   return {
     title: product.name,
     description: product.shortDescription,
+    openGraph: {
+      title: product.name,
+      description: product.shortDescription,
+      type: 'website',
+      url: `${baseUrl}/products/${product.slug}`,
+      images: primaryImage ? [{ url: primaryImage.src, alt: primaryImage.alt }] : [],
+    },
   }
 }
 
@@ -36,8 +44,33 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     getCategoryBySlug(product.category),
   ])
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://crochet-ya.vercel.app'
+  const primaryImage = product.images.find((img) => img.isPrimary) ?? product.images[0]
+
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: primaryImage?.src,
+    url: `${baseUrl}/products/${product.slug}`,
+    offers: {
+      '@type': 'Offer',
+      price: product.price,
+      priceCurrency: product.currency,
+      availability: product.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+    },
+  }
+
   return (
     <PageContainer className="py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-8">
         <Link href="/" className="hover:text-primary transition-colors">

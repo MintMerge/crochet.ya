@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
 import { PageContainer } from '@/components/layout'
 import { ProductGrid } from '@/components/product'
-import { getCategoriesWithCount, getProductsByCategory, getAllProducts } from '@/lib/data'
+import { getProductsGroupedByCategory } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-
-export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -14,21 +12,10 @@ export const metadata: Metadata = {
 }
 
 export default async function ProductsPage() {
-  const categoriesWithCount = await getCategoriesWithCount()
+  const categoriesWithProducts = await getProductsGroupedByCategory()
 
-  // Fetch products for each category that has items
-  const categoriesWithProducts = await Promise.all(
-    categoriesWithCount
-      .filter((cat) => cat.productCount > 0)
-      .map(async (cat) => ({
-        ...cat,
-        products: await getProductsByCategory(cat.slug),
-      }))
-  )
-
-  // Fallback: if no categories seeded yet, show all products in a flat grid
+  // Fallback: if no categories seeded yet, show empty state
   if (categoriesWithProducts.length === 0) {
-    const allProducts = await getAllProducts()
     return (
       <PageContainer className="py-12">
         <div className="text-center mb-12">
@@ -39,24 +26,20 @@ export default async function ProductsPage() {
             Each piece is handmade with care and love. Browse our full collection.
           </p>
         </div>
-        {allProducts.length > 0 ? (
-          <ProductGrid products={allProducts} columns={4} />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 sm:py-28 text-center px-4">
-            <div className="relative mb-8">
-              <div className="flex h-28 w-28 items-center justify-center rounded-full bg-primary/10 border-2 border-primary/20">
-                <span className="text-5xl" role="img" aria-label="yarn">🧶</span>
-              </div>
-              <span className="absolute -top-1 -right-1 text-2xl" role="img" aria-label="sparkle">✨</span>
+        <div className="flex flex-col items-center justify-center py-20 sm:py-28 text-center px-4">
+          <div className="relative mb-8">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-primary/10 border-2 border-primary/20">
+              <span className="text-5xl" role="img" aria-label="yarn">🧶</span>
             </div>
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-3">
-              Nothing here yet
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-xs sm:max-w-sm">
-              New handmade pieces are being crafted with love. Check back very soon!
-            </p>
+            <span className="absolute -top-1 -right-1 text-2xl" role="img" aria-label="sparkle">✨</span>
           </div>
-        )}
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-3">
+            Nothing here yet
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base max-w-xs sm:max-w-sm">
+            New handmade pieces are being crafted with love. Check back very soon!
+          </p>
+        </div>
       </PageContainer>
     )
   }
@@ -84,7 +67,7 @@ export default async function ProductsPage() {
             All
           </Badge>
         </Link>
-        {categoriesWithCount.map((cat) => (
+        {categoriesWithProducts.map((cat) => (
           <Link key={cat.slug} href={`#${cat.slug}`}>
             <Badge
               variant="outline"
