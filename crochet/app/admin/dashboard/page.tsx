@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { connection } from 'next/server'
 import { ShoppingBag, Package, IndianRupee, Clock, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { StatCard } from '@/components/admin/dashboard/stat-card'
@@ -56,6 +57,7 @@ async function getDashboardData() {
 }
 
 export default async function DashboardPage() {
+  await connection() // opt into dynamic rendering — this page uses Date.now()
   const { stats, recentOrders } = await getDashboardData()
 
   return (

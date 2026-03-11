@@ -3,8 +3,6 @@ import { PageContainer } from '@/components/layout'
 import { HeroSection, CategoryGrid, FeaturedProducts, NewArrivals } from '@/components/home'
 import { getFeaturedProducts, getNewArrivals, getCategoriesWithCount, getAllProducts } from '@/lib/data'
 
-export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = {
   title: 'crochet.ya | Handmade with Love',
   description:
@@ -14,6 +12,14 @@ export const metadata: Metadata = {
     description: 'Shop handmade crochet amigurumi, accessories, home decor and custom pieces — each crafted with care.',
     type: 'website',
   },
+}
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'crochet.ya',
+  description: 'Handmade crochet products — amigurumi, accessories, home decor and custom pieces crafted with care.',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://crochet-ya.vercel.app',
 }
 
 export default async function HomePage() {
@@ -34,6 +40,10 @@ export default async function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
       <HeroSection />
       <PageContainer>
         <FeaturedProducts products={featuredProducts.length > 0 ? featuredProducts : allProducts} />

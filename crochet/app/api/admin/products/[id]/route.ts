@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
+import { updateTag } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 import { productFormSchema } from '@/lib/validations/product'
@@ -38,7 +39,7 @@ export async function GET(
   const { data, error } = await supabase.from('products').select('*').eq('id', id).single()
 
   if (error) return NextResponse.json({ error: 'Product not found' }, { status: 404 })
-  return NextResponse.json({ product: mapRow(data) })
+  return NextResponse.json({ product: mapRow(data) }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // PATCH /api/admin/products/[id]
@@ -95,7 +96,8 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ product: mapRow(data) })
+  after(() => updateTag('products'))
+  return NextResponse.json({ product: mapRow(data) }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // DELETE /api/admin/products/[id]
@@ -111,5 +113,7 @@ export async function DELETE(
   const { error } = await supabase.from('products').delete().eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true })
+
+  after(() => updateTag('products'))
+  return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } })
 }

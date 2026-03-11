@@ -63,7 +63,7 @@ export function Footer() {
             Made with <Heart className="h-4 w-4 fill-primary text-primary" /> by
             Crochet Ya
           </p>
-          <p>&copy; {new Date().getFullYear()} Crochet Ya. All rights reserved.</p>
+          <p>&copy; 2025 Crochet Ya. All rights reserved.</p>
         </div>
       </div>
     </footer>

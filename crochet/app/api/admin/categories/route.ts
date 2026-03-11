@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { z } from 'zod'
+import { updateTag } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 
@@ -24,7 +25,7 @@ export async function GET() {
     .order('sort_order', { ascending: true })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ categories: data })
+  return NextResponse.json({ categories: data }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // PUT /api/admin/categories — upsert all categories
@@ -52,5 +53,7 @@ export async function PUT(request: NextRequest) {
     .select()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ categories: data })
+
+  after(() => { updateTag('categories'); updateTag('products') })
+  return NextResponse.json({ categories: data }, { headers: { 'Cache-Control': 'no-store' } })
 }

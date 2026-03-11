@@ -12,7 +12,15 @@ import {
   getCategoryBySlug,
 } from '../data'
 
-// ─── Mock Supabase server client ────────────────────────────────────────────
+// Mock next/cache so cacheLife/cacheTag are no-ops in tests
+vi.mock('next/cache', () => ({
+  cacheLife: vi.fn(),
+  cacheTag: vi.fn(),
+  updateTag: vi.fn(),
+  revalidateTag: vi.fn(),
+}))
+
+// ─── Mock Supabase client ────────────────────────────────────────────────────
 
 const mockProducts = [
   {
@@ -123,8 +131,8 @@ function makeQueryBuilder(rows: Record<string, unknown>[]) {
   return builder
 }
 
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn().mockResolvedValue({
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: vi.fn().mockReturnValue({
     from: (table: string) => ({
       select: () => {
         if (table === 'products') return makeQueryBuilder(mockProducts)
@@ -154,10 +162,10 @@ describe('getAllProducts', () => {
   })
 
   it('returns empty array when no products exist', async () => {
-    const { createClient } = await import('@/lib/supabase/server')
-    vi.mocked(createClient).mockResolvedValueOnce({
+    const { createClient } = await import('@supabase/supabase-js')
+    vi.mocked(createClient).mockReturnValueOnce({
       from: () => ({ select: () => makeQueryBuilder([]) }),
-    } as unknown as ReturnType<typeof createClient> extends Promise<infer T> ? T : never)
+    } as never)
     const products = await getAllProducts()
     expect(products).toHaveLength(0)
   })
