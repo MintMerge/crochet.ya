@@ -145,6 +145,7 @@ export function ProductTable() {
                               src={primaryImage.src}
                               alt={primaryImage.alt}
                               fill
+                              unoptimized
                               className="object-cover"
                               sizes="40px"
                             />

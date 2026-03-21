@@ -113,7 +113,7 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
             >
               {/* Thumbnail */}
               <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0">
-                <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="48px" />
+                <Image src={img.src} alt={img.alt} fill unoptimized className="object-cover" sizes="48px" />
               </div>
 
               {/* Alt text */}

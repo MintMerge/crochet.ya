@@ -244,12 +244,18 @@ Customer fills order form in /cart
 
 ## Important Patterns & Conventions
 
-### Dynamic Rendering
-All public data pages use:
+### Cache Invalidation (`'use cache'` + `revalidateTag`)
+Public data functions in `lib/data.ts` use Next.js 16's `'use cache'` directive with `cacheLife('hours')` and `cacheTag(...)`. Do NOT add `export const dynamic = 'force-dynamic'` to public pages — this caching is intentional and performant.
+
+When admin API routes mutate data, they call `revalidateTag` (from `next/cache`) inside `after(...)` to immediately bust the relevant cache entries:
 ```ts
-export const dynamic = 'force-dynamic';
+after(() => revalidateTag('products'))                                    // product mutations
+after(() => { revalidateTag('categories'); revalidateTag('products') })   // category mutations
 ```
-This prevents stale cached product data. Do NOT use `generateStaticParams` — products are managed live via the admin panel.
+
+**IMPORTANT:** Use `revalidateTag` — NOT `updateTag`. `updateTag` is the client-side Cache Components API and has zero effect on server-side `'use cache'` data entries. Using the wrong function means deleted/updated products remain visible on the storefront for hours.
+
+Do NOT use `generateStaticParams` — products are managed live via the admin panel.
 
 ### TanStack Query v5
 `onSuccess` callback was removed in v5. Use `useEffect` to react to query results:
@@ -358,3 +364,5 @@ This prevents the Next.js Image Optimizer 400 error and browser empty-src warnin
 - **Do not use `onSuccess` in `useQuery`** — it was removed in TanStack Query v5.
 - **Do not bypass `requireAdminAuth()`** in admin API routes — all admin endpoints must be authenticated.
 - **Do not add `SUPABASE_SERVICE_ROLE_KEY` to any `NEXT_PUBLIC_*` variable** — it must remain server-side only.
+- **Do not use `updateTag` for server cache invalidation** — use `revalidateTag`. `updateTag` is the client-side Cache Components API; calling it has no effect on `'use cache'` data functions in `lib/data.ts`.
+- **Do not add `export const dynamic = 'force-dynamic'` to public pages** — the app uses `'use cache'` + `revalidateTag` for controlled invalidation; force-dynamic would bypass caching entirely.

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 vi.mock('@/lib/supabase/auth-check', () => ({ requireAdminAuth: vi.fn() }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
-vi.mock('next/cache', () => ({ updateTag: vi.fn(), cacheLife: vi.fn(), cacheTag: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn(), cacheLife: vi.fn(), cacheTag: vi.fn() }))
 
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 import { createAdminClient } from '@/lib/supabase/admin'

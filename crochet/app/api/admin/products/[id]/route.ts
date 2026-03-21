@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse, after } from 'next/server'
-import { updateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 import { productFormSchema } from '@/lib/validations/product'
@@ -96,7 +96,7 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  after(() => updateTag('products'))
+  after(() => revalidateTag('products', 'max'))
   return NextResponse.json({ product: mapRow(data) }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
@@ -114,6 +114,6 @@ export async function DELETE(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  after(() => updateTag('products'))
+  after(() => revalidateTag('products', 'max'))
   return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } })
 }
