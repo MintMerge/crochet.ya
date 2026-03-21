@@ -140,7 +140,7 @@ describe('PUT /api/admin/categories', () => {
   it('calls revalidateTag for both categories and products after success', async () => {
     await PUT(makePUT(validPayload))
     expect(after).toHaveBeenCalled()
-    expect(revalidateTag).toHaveBeenCalledWith('categories')
-    expect(revalidateTag).toHaveBeenCalledWith('products')
+    expect(revalidateTag).toHaveBeenCalledWith('categories', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('products', 'max')
   })
 })

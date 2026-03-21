@@ -102,6 +102,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  after(() => revalidateTag('products'))
+  after(() => revalidateTag('products', 'max'))
   return NextResponse.json({ product: mapRow(data) }, { status: 201, headers: { 'Cache-Control': 'no-store' } })
 }

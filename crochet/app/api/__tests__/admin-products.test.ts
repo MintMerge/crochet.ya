@@ -237,6 +237,6 @@ describe('POST /api/admin/products', () => {
     vi.mocked(createAdminClient).mockReturnValue(buildMockClient(mockProduct) as never)
     await POST(makePOST(validProductBody))
     expect(after).toHaveBeenCalled()
-    expect(revalidateTag).toHaveBeenCalledWith('products')
+    expect(revalidateTag).toHaveBeenCalledWith('products', 'max')
   })
 })

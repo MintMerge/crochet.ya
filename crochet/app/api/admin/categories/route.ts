@@ -54,6 +54,6 @@ export async function PUT(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  after(() => { revalidateTag('categories'); revalidateTag('products') })
+  after(() => { revalidateTag('categories', 'max'); revalidateTag('products', 'max') })
   return NextResponse.json({ categories: data }, { headers: { 'Cache-Control': 'no-store' } })
 }

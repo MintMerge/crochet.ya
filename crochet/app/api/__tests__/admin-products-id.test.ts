@@ -167,7 +167,7 @@ describe('PATCH /api/admin/products/[id]', () => {
   it('calls revalidateTag after successful update', async () => {
     await PATCH(makeRequest('PATCH', validProductBody), { params })
     expect(after).toHaveBeenCalled()
-    expect(revalidateTag).toHaveBeenCalledWith('products')
+    expect(revalidateTag).toHaveBeenCalledWith('products', 'max')
   })
 })
 
@@ -198,6 +198,6 @@ describe('DELETE /api/admin/products/[id]', () => {
     vi.mocked(createAdminClient).mockReturnValue(buildMockClient(null, null) as never)
     await DELETE(makeRequest('DELETE'), { params })
     expect(after).toHaveBeenCalled()
-    expect(revalidateTag).toHaveBeenCalledWith('products')
+    expect(revalidateTag).toHaveBeenCalledWith('products', 'max')
   })
 })
