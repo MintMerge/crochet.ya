@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { z } from 'zod'
-import { updateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 
@@ -54,6 +54,6 @@ export async function PUT(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  after(() => { updateTag('categories'); updateTag('products') })
+  after(() => { revalidateTag('categories'); revalidateTag('products') })
   return NextResponse.json({ categories: data }, { headers: { 'Cache-Control': 'no-store' } })
 }

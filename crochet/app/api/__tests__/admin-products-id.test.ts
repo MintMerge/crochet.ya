@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 vi.mock('@/lib/supabase/auth-check', () => ({ requireAdminAuth: vi.fn() }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
-vi.mock('next/cache', () => ({ updateTag: vi.fn(), cacheLife: vi.fn(), cacheTag: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn(), cacheLife: vi.fn(), cacheTag: vi.fn() }))
 vi.mock('next/server', async (importOriginal) => {
   const actual = await importOriginal<typeof import('next/server')>()
   return { ...actual, after: vi.fn((fn: () => void) => fn()) }
@@ -13,7 +13,7 @@ import { requireAdminAuth } from '@/lib/supabase/auth-check'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { GET, PATCH, DELETE } from '@/app/api/admin/products/[id]/route'
 import { after } from 'next/server'
-import { updateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 
 const authed = { user: { id: 'u1', email: 'admin@test.com' } as never, response: null }
 const unauthed = { user: null, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
@@ -164,10 +164,10 @@ describe('PATCH /api/admin/products/[id]', () => {
     expect(res.status).toBe(500)
   })
 
-  it('calls updateTag after successful update', async () => {
+  it('calls revalidateTag after successful update', async () => {
     await PATCH(makeRequest('PATCH', validProductBody), { params })
     expect(after).toHaveBeenCalled()
-    expect(updateTag).toHaveBeenCalledWith('products')
+    expect(revalidateTag).toHaveBeenCalledWith('products')
   })
 })
 
@@ -194,10 +194,10 @@ describe('DELETE /api/admin/products/[id]', () => {
     expect(res.status).toBe(500)
   })
 
-  it('calls updateTag after successful delete', async () => {
+  it('calls revalidateTag after successful delete', async () => {
     vi.mocked(createAdminClient).mockReturnValue(buildMockClient(null, null) as never)
     await DELETE(makeRequest('DELETE'), { params })
     expect(after).toHaveBeenCalled()
-    expect(updateTag).toHaveBeenCalledWith('products')
+    expect(revalidateTag).toHaveBeenCalledWith('products')
   })
 })

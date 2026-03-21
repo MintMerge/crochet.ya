@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { z } from 'zod'
-import { updateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminAuth } from '@/lib/supabase/auth-check'
 import { productFormSchema } from '@/lib/validations/product'
@@ -102,6 +102,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  after(() => updateTag('products'))
+  after(() => revalidateTag('products'))
   return NextResponse.json({ product: mapRow(data) }, { status: 201, headers: { 'Cache-Control': 'no-store' } })
 }
