@@ -54,6 +54,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                   src={cat.image}
                   alt={cat.name}
                   fill
+                  unoptimized
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="(max-width: 768px) 50vw, 33vw"
                 />

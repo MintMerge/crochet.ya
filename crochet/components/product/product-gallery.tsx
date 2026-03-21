@@ -40,6 +40,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               src={selectedImage.src}
               alt={selectedImage.alt || productName}
               fill
+              unoptimized
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority
@@ -67,6 +68,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 src={image.src}
                 alt={image.alt || `${productName} view ${index + 1}`}
                 fill
+                unoptimized
                 className="object-cover"
                 sizes="80px"
               />
